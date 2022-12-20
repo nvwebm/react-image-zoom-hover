@@ -26,6 +26,9 @@ const App = () =>
 export default App
 
 ```
+## ChangeLog
+
+1.1 Support for mobile was added.
 
 ## License
 

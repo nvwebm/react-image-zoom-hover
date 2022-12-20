@@ -8,7 +8,6 @@ interface Props
 {
   children: React.ReactHTMLElement<HTMLImageElement>;
   bigImage: string;
-  
 }
 
 export const ImageZoom = ({ children, bigImage }: Props) =>
@@ -25,31 +24,56 @@ export const ImageZoom = ({ children, bigImage }: Props) =>
   const [zoomYPosition, setZoomYPosition] = React.useState(0);
   const mouseEnter = () => setIsMouseOver(true);
   const mouseLeave = () => setIsMouseOver(false);
-  const mouseMove = (e: MouseEvent) =>
+  const movement = (offsetX: number, offsetY: number) =>
   {
-    const { offsetX, offsetY } = e;
     setZoomXPosition(offsetX);
     setZoomYPosition(offsetY);
   }
+  const mouseMove = (e: MouseEvent) =>
+  {
+    const { offsetX, offsetY } = e;
+    movement(offsetX, offsetY);
+  }
+  const touchMove = (e: TouchEvent, left: number, top: number) =>
+  {
+    const lastTouchEvent = e.changedTouches[e.changedTouches.length - 1];
+    const offsetX = lastTouchEvent.pageX - left;
+    const offsetY = lastTouchEvent.pageY - top;
+    if (offsetX > zoomContainerDimension.width) setIsMouseOver(false);
+    if (offsetY > zoomContainerDimension.height) setIsMouseOver(false);
+
+    movement(offsetX, offsetY);
+  }
+
   React.useEffect(() =>
   {
     if (!imageTag) return;
     imageTag.addEventListener('mousemove', mouseMove);
     imageTag.addEventListener('mouseenter', mouseEnter);
     imageTag.addEventListener('mouseleave', mouseLeave);
+    imageTag.addEventListener('touchstart', mouseEnter);
+    imageTag.addEventListener('touchcancel', mouseLeave);
+    imageTag.addEventListener('touchend', mouseLeave);
+
+    const imagePagePosition = imageTag.getBoundingClientRect();
+    const touchMoveHandler = (e: TouchEvent) => touchMove(e, imagePagePosition.left, imagePagePosition.top);
+    imageTag.addEventListener('touchmove', touchMoveHandler);
 
     const localDimensions = getImageWidthAndHeight(imageTag);
     const localRelationalDimensions = calcRelationalDimensions(imageTag, localDimensions);
     const realImageDiemsions = getRealImageWidthAndHeight(imageTag);
-
     setRelationalDimensions(localRelationalDimensions);
     setRealImageDimensions(realImageDiemsions);
-    
+
     return () =>
     {
       imageTag.removeEventListener('mouseenter', mouseEnter);
       imageTag.removeEventListener('mouseleave', mouseLeave);
       imageTag.removeEventListener('mousemove', mouseMove);
+      imageTag.removeEventListener('touchstart', mouseEnter);
+      imageTag.removeEventListener('touchcancel', mouseLeave);
+      imageTag.removeEventListener('touchend', mouseLeave);
+      imageTag.removeEventListener('touchmove', touchMoveHandler);
     }
   }, [imageTag]);
   React.useEffect(() =>

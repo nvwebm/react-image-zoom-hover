@@ -72,17 +72,36 @@ var ImageZoom = function ImageZoom(_ref) {
   var mouseLeave = function mouseLeave() {
     return setIsMouseOver(false);
   };
+  var movement = function movement(offsetX, offsetY) {
+    setZoomXPosition(offsetX);
+    setZoomYPosition(offsetY);
+  };
   var mouseMove = function mouseMove(e) {
     var offsetX = e.offsetX,
       offsetY = e.offsetY;
-    setZoomXPosition(offsetX);
-    setZoomYPosition(offsetY);
+    movement(offsetX, offsetY);
+  };
+  var touchMove = function touchMove(e, left, top) {
+    var lastTouchEvent = e.changedTouches[e.changedTouches.length - 1];
+    var offsetX = lastTouchEvent.pageX - left;
+    var offsetY = lastTouchEvent.pageY - top;
+    if (offsetX > zoomContainerDimension.width) setIsMouseOver(false);
+    if (offsetY > zoomContainerDimension.height) setIsMouseOver(false);
+    movement(offsetX, offsetY);
   };
   useEffect(function () {
     if (!imageTag) return;
     imageTag.addEventListener('mousemove', mouseMove);
     imageTag.addEventListener('mouseenter', mouseEnter);
     imageTag.addEventListener('mouseleave', mouseLeave);
+    imageTag.addEventListener('touchstart', mouseEnter);
+    imageTag.addEventListener('touchcancel', mouseLeave);
+    imageTag.addEventListener('touchend', mouseLeave);
+    var imagePagePosition = imageTag.getBoundingClientRect();
+    var touchMoveHandler = function touchMoveHandler(e) {
+      return touchMove(e, imagePagePosition.left, imagePagePosition.top);
+    };
+    imageTag.addEventListener('touchmove', touchMoveHandler);
     var localDimensions = getImageWidthAndHeight(imageTag);
     var localRelationalDimensions = calcRelationalDimensions(imageTag, localDimensions);
     var realImageDiemsions = getRealImageWidthAndHeight(imageTag);
@@ -92,6 +111,10 @@ var ImageZoom = function ImageZoom(_ref) {
       imageTag.removeEventListener('mouseenter', mouseEnter);
       imageTag.removeEventListener('mouseleave', mouseLeave);
       imageTag.removeEventListener('mousemove', mouseMove);
+      imageTag.removeEventListener('touchstart', mouseEnter);
+      imageTag.removeEventListener('touchcancel', mouseLeave);
+      imageTag.removeEventListener('touchend', mouseLeave);
+      imageTag.removeEventListener('touchmove', touchMoveHandler);
     };
   }, [imageTag]);
   useEffect(function () {
