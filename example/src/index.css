@@ -13,23 +13,7 @@ code {
     monospace;
 }
 
-.react-image-zoom-container {
-  position: relative;
-  top: 200px;
-  display: inline-block;
-}
-.react-image-zoom-inner-container {
-  position: absolute;
-  display: none;
-  width: 200px;
-  height: 200px;
-  overflow: hidden;
-  border-radius: 3px;
-  box-shadow: 0 0 2px black;
-}
-.react-image-zoom-inner-zoomed-image {
-  position: relative;
-}
+
 .center {
   display: flex;
   justify-content: center;
