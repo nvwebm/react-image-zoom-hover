@@ -7,7 +7,7 @@
 ## Install
 
 ```bash
-npm install --save react-image-zoom
+npm install --save react-image-zoom-hover
 ```
 
 ## Usage
