@@ -30,3 +30,8 @@ code {
 .react-image-zoom-inner-zoomed-image {
   position: relative;
 }
+.center {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
